@@ -29,8 +29,8 @@ namespace Machine
 
             //Connection
             Console.WriteLine("Server");
-            var port = 11;     // 2321;
-            IPAddress ip = IPAddress.Parse("127.0.0.1");                //("192.168.99.208");
+            var port = 2321;
+            IPAddress ip = IPAddress.Parse("192.168.99.208");
             IPEndPoint end = new(ip, port);
             using TcpListener listener = new(end);
 
@@ -43,7 +43,7 @@ namespace Machine
                 byte[] buffer = new byte[1024];
                 string msg = "Successfully Connected";
                 var msgbytes = Encoding.UTF8.GetBytes(msg);
-                stream.Write(msgbytes);
+                //stream.Write(msgbytes);
 
                 while (true)
                 {
@@ -529,10 +529,10 @@ namespace Machine
 
             sensor1 = 0;
             sensor2 = 0;
-           encI = 1000;
+            encI = 1000;
             encS = 0;
             encD = 0;
-             dwellTime = 0;
+            dwellTime = 0;
             totalTime = 0;
             errorCode = 0;
             string Data2Send = "#" + "," +Convert.ToString(sensor1) + "," +Convert.ToString(sensor2) + "," + Convert.ToString(encI) + "," + Convert.ToString(encS) + "," + Convert.ToString(encD) + "," + Convert.ToString(dwellTime) + "," + Convert.ToString(totalTime) + "," + Convert.ToString(errorCode);
