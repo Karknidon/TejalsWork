@@ -31,8 +31,8 @@ namespace Machine
 
             //Connection
             Console.WriteLine("Server");
-            var port = 2321;           //11;                        //
-            IPAddress ip = IPAddress.Parse("192.168.99.208");                          //
+            var port = 2321;           //11;                       
+            IPAddress ip = IPAddress.Parse("192.168.99.208");
             IPEndPoint end = new(ip, port);
             using TcpListener listener = new(end);
 
@@ -45,7 +45,7 @@ namespace Machine
                 byte[] buffer = new byte[1024];
                 string msg = "Successfully Connected";
                 var msgbytes = Encoding.UTF8.GetBytes(msg);
-              //stream.Write(msgbytes);
+                //stream.Write(msgbytes);
 
                 if (encS == 0)
                 {
@@ -63,7 +63,7 @@ namespace Machine
                 }
                 sensor1 = Convert.ToByte(sensor1 | (1 << 1));
                 sensor1 = Convert.ToByte(sensor1 | (1 << 5));
-                errorCode = 205;
+                // errorCode = 205;
                 while (true)
                 {
 
@@ -72,14 +72,15 @@ namespace Machine
                     HB(stream);
                     string done = Encoding.UTF8.GetString(buffer, 0, buffer.Length);
                     Thread c = new Thread(() => Emulator(stream, buffer));
-                    c.Start();
                     string input = Encoding.UTF8.GetString(buffer, 0, buffer.Length);
-                    if (input.Contains("W") || input.Contains("DOOR"))
+                    c.Start();
+                    if (input.Contains("W"))
                     {
                         c.Join();
                     }
                     Thread.Sleep(20);
-
+                    Thread inp = new Thread(() => Input(stream, buffer));
+                    inp.Start();
 
                 }
             }
@@ -100,83 +101,6 @@ namespace Machine
             Regex re = new Regex(str);
             if (re.IsMatch(input))
             {
-
-
-                //if (input.Contains("MOVEIN"))
-                //{
-
-                //    encCounts = 5;
-                //    int end = input.IndexOf(",", 2);
-                //    int start = input.IndexOf("N");
-                //    n = Convert.ToInt16(input.Substring(start + 1, end - start - 1));
-                //    int mul = encCounts * n;
-                //    int add = 0;
-                //    if (encS > 0)
-                //    {
-                //        while (add < mul)
-                //        {
-                //            Thread.Sleep(50);
-                //            encS -= 10;
-                //            add += 10;
-                //        }
-                //    }
-                //    else if (encS < 0)
-                //    {
-
-                //        while (add < mul)
-                //        {
-                //            Thread.Sleep(50);
-                //            encS += 10;
-                //            add = add + 10;
-                //        }
-                //    }
-                //    if (encS == 0)
-                //    {
-                //        sensor1 = Convert.ToByte(sensor1 | (1 << 2));
-                //    }
-                //    else
-                //    {
-                //        sensor1 = Convert.ToByte(sensor1 & ~(1 << 2));
-                //    }
-
-                //}
-                //else if (input.Contains("MOVEOUT"))
-                //{
-                //    encCounts = 5;
-                //    int end = input.IndexOf(",", 2);
-                //    int start = input.IndexOf("T");
-                //    n = Convert.ToInt16(input.Substring(start + 1, end - start - 1));
-                //    int mul = encCounts * n;
-                //    int add = 0;
-                //    if (encS >= 0)
-                //    {
-                //        while (add < mul)
-                //        {
-                //            Thread.Sleep(50);
-                //            encS += 10;
-                //            add += 10;
-                //        }
-                //    }
-                //    else if (encS < 0)
-                //    {
-
-                //        while (add < mul)
-                //        {
-                //            Thread.Sleep(50);
-                //            encS -= 10;
-                //            add = add + 10;
-                //        }
-                //    }
-                //    if (encS == 0)
-                //    {
-                //        sensor1 = Convert.ToByte(sensor1 | (1 << 2));
-                //    }
-                //    else
-                //    {
-                //        sensor1 = Convert.ToByte(sensor1 & ~(1 << 2));
-                //    }
-
-                //}
                 if (input.Contains("EI"))
                 {
 
@@ -185,8 +109,10 @@ namespace Machine
                     sensor2 = Convert.ToByte(sensor2 | (1 << 0)); //moving
                     sensor2 = Convert.ToByte(sensor2 | (1 << 1)); //command in progress
                     encI = t * w;
-                    sensor2 = Convert.ToByte(sensor2 & ~(1 << 0));
-                    sensor2 = Convert.ToByte(sensor2 & ~(1 << 1));
+                    if (Convert.ToByte(sensor1 & (1 << 3)) == 8)
+                    {
+                        sensor1 = Convert.ToByte(sensor1 & ~(1 << 3));
+                    }
                     sensor2 = Convert.ToByte(sensor2 | (1 << 3)); ; //indexer calibrated
                     sensor1 = Convert.ToByte(sensor1 | (1 << 4)); ; //indexer home
                     encI = 0;
@@ -209,8 +135,6 @@ namespace Machine
                     {
                         sensor1 = Convert.ToByte(sensor1 & ~(1 << 0));
                     }
-                    sensor2 = Convert.ToByte(sensor2 & ~(1 << 0));
-                    sensor2 = Convert.ToByte(sensor2 & ~(1 << 1));
                     sensor2 = Convert.ToByte(sensor2 | (1 << 3));  //indexer calibrated
                     sensor1 = Convert.ToByte(sensor1 | (1 << 2)); //SOURCE home
                     sensor2 = Convert.ToByte(sensor2 & ~(1 << 0)); //moving
@@ -225,7 +149,7 @@ namespace Machine
                     sensor2 = Convert.ToByte(sensor2 | (1 << 0)); //moving
                     sensor2 = Convert.ToByte(sensor2 | (1 << 1)); //command in progress
                     encD = t * w;
-                    if(Convert.ToByte(sensor1 & (1 << 5)) != 32)
+                    if (Convert.ToByte(sensor1 & (1 << 5)) != 32)
                     {
                         sensor1 = Convert.ToByte(sensor1 | (1 << 5));
                     }
@@ -233,8 +157,7 @@ namespace Machine
                     {
                         sensor1 = Convert.ToByte(sensor1 & ~(1 << 0));
                     }
-                    sensor2 = Convert.ToByte(sensor2 & ~(1 << 0));
-                    sensor2 = Convert.ToByte(sensor2 & ~(1 << 1));
+
                     sensor2 = Convert.ToByte(sensor2 | (1 << 3)); ; //indexer calibrated
                     sensor1 = Convert.ToByte(sensor1 | (1 << 6)); ;//DUMMY home
                     sensor2 = Convert.ToByte(sensor2 & ~(1 << 0)); //moving
@@ -243,75 +166,168 @@ namespace Machine
                 }
                 else if (input.Contains("MSF"))
                 {
-                    sensor2 = Convert.ToByte(sensor2 | (1 << 0)); //moving
-                    sensor2 = Convert.ToByte(sensor2 | (1 << 1)); //command in progress
-
-                    if ((Convert.ToByte(sensor1 & (1 << 0)) == 1) && (Convert.ToByte(sensor1 & (1 << 1)) != 2))
+                    if (Convert.ToByte(sensor1 & (1 << 3)) == 8)
                     {
-                        errorCode = 209;
-                    }
-                    else if ((Convert.ToByte(sensor1 & (1 << 0)) == 1) && (d > 0))
-                    {
-                        errorCode = 500;
-                    }
+                        sensor2 = Convert.ToByte(sensor2 | (1 << 0)); //moving
+                        sensor2 = Convert.ToByte(sensor2 | (1 << 1)); //command in progress
 
+                        if ((Convert.ToByte(sensor1 & (1 << 0)) == 1) && (Convert.ToByte(sensor1 & (1 << 1)) != 2))
+                        {
+                            errorCode = 209;
+                        }
+                        else if ((Convert.ToByte(sensor1 & (1 << 0)) == 1) && (d > 0))
+                        {
+                            errorCode = 500;
+                        }
+
+                        else
+                        {
+                            encCounts = 5;
+                            int end = input.IndexOf(",", 2);
+                            int start = input.IndexOf("F");
+                            n = Convert.ToInt16(input.Substring(start + 1, end - start - 1));
+                            int mul = encCounts * n;
+                            int j = 0;
+                            while (mul != 0)
+                            {
+
+                                if (mul >= 500)
+                                {
+                                    Thread.Sleep(50);
+                                    encS += 100;
+                                    mul -= 100;
+                                }
+                                else if (mul >= 100)
+                                {
+                                    Thread.Sleep(50);
+                                    encS += 50;
+                                    mul -= 50;
+                                }
+                                else if (mul >= 50)
+                                {
+                                    Thread.Sleep(50);
+                                    encS += 10;
+                                    mul -= 10;
+                                }
+                                else
+                                {
+                                    Thread.Sleep(50);
+                                    encS += 1;
+                                    mul -= 1;
+                                }
+                                if (encS != 0)
+                                {
+                                    sensor1 = Convert.ToByte(sensor1 & ~(1 << 2));
+                                }
+                                if (encS >= 1585)
+                                {
+                                    j++;
+                                    sensor1 = Convert.ToByte(sensor1 | (1 << 0));
+                                    if (j == 1)
+                                    {
+                                        s++;
+                                    }
+                                    if (encS == 21240)
+                                    {
+                                        sensor1 = Convert.ToByte(sensor1 & ~(1 << 1));
+                                    }
+                                    else if (encS > 21240)
+                                    {
+                                        encS = 21240;
+                                        errorCode = 209;
+                                        sensor1 = Convert.ToByte(sensor1 & ~(1 << 1));
+                                        break;
+                                    }
+                                }
+                            }
+                            if (encS == 0)
+                            {
+                                sensor1 = Convert.ToByte(sensor1 | (1 << 2));
+                            }
+
+
+                        }
+                        sensor2 = Convert.ToByte(sensor2 & ~(1 << 0)); //moving
+                        sensor2 = Convert.ToByte(sensor2 & ~(1 << 1)); //command in progress
+                    }
                     else
                     {
-                        encCounts = 5;
-                        int end = input.IndexOf(",", 2);
-                        int start = input.IndexOf("F");
-                        n = Convert.ToInt16(input.Substring(start + 1, end - start - 1));
-                        int mul = encCounts * n;
-                        int j = 0;
-                        while (mul != 0)
+                        errorCode = 205;
+                    }
+                }
+                else if (input.Contains("MSR"))
+                {
+                    if (Convert.ToByte(sensor1 & (1 << 3)) == 8)
+                    {
+                        sensor2 = Convert.ToByte(sensor2 | (1 << 0)); //moving
+                        sensor2 = Convert.ToByte(sensor2 | (1 << 1)); //command in progress      
+                        if (encS == 0)
                         {
-                            
-                            if (mul >= 500)
+                            errorCode = 208;
+                        }
+                        else if (encS > 0)
+                        {
+                            encCounts = 5;
+                            int end = input.IndexOf(",", 2);
+                            int start = input.IndexOf("R");
+                            n = Convert.ToInt16(input.Substring(start + 1, end - start - 1));
+                            int mul = encCounts * n;
+                            int j = 0;
+
+                            while (mul != 0)
                             {
-                                Thread.Sleep(50);
-                                encS += 100;
-                                mul -= 100;
-                            }
-                            else if (mul >= 100)
-                            {
-                                Thread.Sleep(50);
-                                encS += 50;
-                                mul -= 50;
-                            }
-                            else if (mul >= 50)
-                            {
-                                Thread.Sleep(50);
-                                encS += 10;
-                                mul -= 10;
-                            }
-                            else 
-                            {
-                                Thread.Sleep(50);
-                                encS += 1;
-                                mul -= 1;
-                            }
-                            if (encS != 0)
-                            {
-                                sensor1 = Convert.ToByte(sensor1 & ~(1 << 2));
-                            }
-                            if (encS >= 1585)
-                            {
-                                j++;
-                                sensor1 = Convert.ToByte(sensor1 | (1 << 0));
-                                if (j == 1)
+                                if (mul >= 500)
                                 {
-                                    s++;
+                                    Thread.Sleep(50);
+                                    encS -= 100;
+                                    mul -= 100;
                                 }
-                                if (encS == 21240)
+                                else if (mul >= 100)
                                 {
-                                    sensor1 = Convert.ToByte(sensor1 & ~(1 << 1));
+                                    Thread.Sleep(50);
+                                    encS -= 50;
+                                    mul -= 50;
                                 }
-                                else if (encS > 21240)
+                                else if (mul >= 50)
                                 {
-                                    encS = 21240;
-                                    errorCode = 209;
-                                    sensor1 = Convert.ToByte(sensor1 & ~(1 << 1));
+                                    Thread.Sleep(50);
+                                    encS -= 10;
+                                    mul -= 10;
+                                }
+
+                                else
+                                {
+                                    Thread.Sleep(50);
+                                    encS -= 1;
+                                    mul -= 1;
+                                }
+
+                                if (encS < 0)
+                                {
+                                    errorCode = 208;
+                                    sensor1 = Convert.ToByte(sensor1 | (1 << 2));
+                                    encS = 0;
                                     break;
+                                }
+                                else if (encS < 21420)
+                                {
+                                    sensor1 = Convert.ToByte(sensor1 | (1 << 1));
+                                    if (encS < 1585)
+                                    {
+                                        j++;
+                                        if (j == 1)
+                                        {
+                                            sensor1 = Convert.ToByte(sensor1 & ~(1 << 0));
+                                            s = 0;
+                                        }
+                                    }
+                                }
+
+
+                                else
+                                {
+                                    sensor1 = Convert.ToByte(sensor1 & ~(1 << 2));
+
                                 }
                             }
                         }
@@ -319,259 +335,190 @@ namespace Machine
                         {
                             sensor1 = Convert.ToByte(sensor1 | (1 << 2));
                         }
-
-
+                        sensor2 = Convert.ToByte(sensor2 & ~(1 << 0)); //moving
+                        sensor2 = Convert.ToByte(sensor2 & ~(1 << 1)); //command in progress
                     }
-                    sensor2 = Convert.ToByte(sensor2 & ~(1 << 0)); //moving
-                    sensor2 = Convert.ToByte(sensor2 & ~(1 << 1)); //command in progress
-                }
-
-                else if (input.Contains("MSR"))
-                {
-                    sensor2 = Convert.ToByte(sensor2 | (1 << 0)); //moving
-                    sensor2 = Convert.ToByte(sensor2 | (1 << 1)); //command in progress      
-                    if (encS == 0)
-                    {
-                        errorCode = 208;
-                    }
-                    else if (encS > 0)
-                    {
-                        encCounts = 5;
-                        int end = input.IndexOf(",", 2);
-                        int start = input.IndexOf("R");
-                        n = Convert.ToInt16(input.Substring(start + 1, end - start - 1));
-                        int mul = encCounts * n;
-                        int j = 0;
-
-                        while (mul != 0)
-                        {
-                            if (mul >= 500)
-                            {
-                                Thread.Sleep(50);
-                                encS -= 100;
-                                mul -= 100;
-                            }
-                            else if (mul >= 100)
-                            {
-                                Thread.Sleep(50);
-                                encS -= 50;
-                                mul -= 50;
-                            }
-                            else if (mul >= 50)
-                            {
-                                Thread.Sleep(50);
-                                encS -= 10;
-                                mul -= 10;
-                            }
-                           
-                            else
-                            {
-                                Thread.Sleep(50);
-                                encS -= 1;
-                                mul -= 1;
-                            }
-
-                            if (encS < 0)
-                            {
-                                errorCode = 208;
-                                sensor1 = Convert.ToByte(sensor1 | (1 << 2));
-                                encS = 0;
-                                break;
-                            }
-                            else if (encS < 21420)
-                            {
-                                sensor1 = Convert.ToByte(sensor1 | (1 << 1));
-                                if (encS < 1585)
-                                {
-                                    j++;
-                                    if (j == 1)
-                                    {
-                                        sensor1 = Convert.ToByte(sensor1 & ~(1 << 0));
-                                        s=0;
-                                    }
-                                }
-                            }
-
-
-                            else
-                            {
-                                sensor1 = Convert.ToByte(sensor1 & ~(1 << 2));
-
-                            }
-                        }
-                    }
-                    if (encS == 0)
-                    {
-                        sensor1 = Convert.ToByte(sensor1 | (1 << 2));
-                    }
-                    sensor2 = Convert.ToByte(sensor2 & ~(1 << 0)); //moving
-                    sensor2 = Convert.ToByte(sensor2 & ~(1 << 1)); //command in progress
-                }
-
-                else if (input.Contains("MDF"))
-                {
-                    sensor2 = Convert.ToByte(sensor2 | (1 << 0)); //moving
-                    sensor2 = Convert.ToByte(sensor2 | (1 << 1)); //command in progress
-                    if ((Convert.ToByte(sensor1 & (1 << 0)) == 1) && (Convert.ToByte(sensor1 & (1 << 5)) != 32))
-                    {
-                        errorCode = 204;
-                    }
-                    else if ((Convert.ToByte(sensor1 & (1 << 0)) == 1) && s > 0)
-                    {
-                        errorCode = 500;
-                    }
-
                     else
                     {
-                        encCounts = 5;
-                        int end = input.IndexOf(",", 2);
-                        int start = input.IndexOf("F");
-                        n = Convert.ToInt16(input.Substring(start + 1, end - start - 1));
-                        int mul = encCounts * n;
-                        int j = 0;
-                        while (mul != 0)
-                        {
-
-                            if (mul >= 500)
-                            {
-                                Thread.Sleep(50);
-                                encD += 100;
-                                mul -= 100;
-                            }
-                            else if (mul >= 100)
-                            {
-                                Thread.Sleep(50);
-                                encD += 50;
-                                mul -= 50;
-                            }
-                            else if (mul >= 50)
-                            {
-                                Thread.Sleep(50);
-                                encD += 10;
-                                mul -= 10;
-                            }
-                            
-                            else
-                            {
-                                Thread.Sleep(50);
-                                encD += 1;
-                                mul -= 1;
-                            }
-
-                            if (encD != 0)
-                            {
-                                sensor1 = Convert.ToByte(sensor1 & ~(1 << 6));
-                            }
-                            if (encD >= 1585)
-                            {
-                                j++;
-                                if (j == 1)
-                                {
-                                    d++;
-                                }
-                                
-                                sensor1 = Convert.ToByte(sensor1 | (1 << 0));
-                                if (encD == 21240)
-                                {
-                                    sensor1 = Convert.ToByte(sensor1 & ~(1 << 5));
-                                }
-                                else if (encD > 21240)
-                                {
-                                    encD = 21240;
-                                    errorCode = 204;
-                                    sensor1 = Convert.ToByte(sensor1 & ~(1 << 5));
-                                    break;
-                                }
-                            }
-                        }
+                        errorCode = 205;
                     }
-
-                    sensor2 = Convert.ToByte(sensor2 & ~(1 << 0)); //moving
-                    sensor2 = Convert.ToByte(sensor2 & ~(1 << 1)); //command in progress
-
                 }
-
-                else if (input.Contains("MDR"))
+                else if (input.Contains("MDF"))
                 {
-                    sensor2 = Convert.ToByte(sensor2 | (1 << 0)); //moving
-                    sensor2 = Convert.ToByte(sensor2 | (1 << 1)); //command in progress
-                    if (encD == 0)
+                    if (Convert.ToByte(sensor1 & (1 << 3)) == 8)
                     {
-                        errorCode = 203;
-                    }
-                    if (encD > 0)
-                    {
-                        encCounts = 5;
-                        int end = input.IndexOf(",", 2);
-                        int start = input.IndexOf("R");
-                        n = Convert.ToInt16(input.Substring(start + 1, end - start - 1));
-                        int mul = encCounts * n;
-                        int j = 0;
-                        while (mul != 0)
+                        sensor2 = Convert.ToByte(sensor2 | (1 << 0)); //moving
+                        sensor2 = Convert.ToByte(sensor2 | (1 << 1)); //command in progress
+                        if ((Convert.ToByte(sensor1 & (1 << 0)) == 1) && (Convert.ToByte(sensor1 & (1 << 5)) != 32))
                         {
-                            if (mul >= 500)
+                            errorCode = 204;
+                        }
+                        else if ((Convert.ToByte(sensor1 & (1 << 0)) == 1) && s > 0)
+                        {
+                            errorCode = 500;
+                        }
+
+                        else
+                        {
+                            encCounts = 5;
+                            int end = input.IndexOf(",", 2);
+                            int start = input.IndexOf("F");
+                            n = Convert.ToInt16(input.Substring(start + 1, end - start - 1));
+                            int mul = encCounts * n;
+                            int j = 0;
+                            while (mul != 0)
                             {
-                                Thread.Sleep(50);
-                                encD -= 100;
-                                mul -= 100;
-                            }
-                            else if (mul >= 100)
-                            {
-                                Thread.Sleep(50);
-                                encD -= 50;
-                                mul -= 50;
-                            }
-                            else if (mul >= 50)
-                            {
-                                Thread.Sleep(50);
-                                encD -= 10;
-                                mul -= 10;
-                            }
-                            else
-                            {
-                                Thread.Sleep(50);
-                                encD -= 1;
-                                mul -= 1;
-                            }
-                           
-                            if (encD < 0)
-                            {
-                                errorCode = 203;
-                                sensor1 = Convert.ToByte(sensor1 | (1 << 6));
-                                encD = 0;
-                                break;
-                            }
-                            else if (encD < 21420)
-                            {
-                                sensor1 = Convert.ToByte(sensor1 | (1 << 5));
-                                if (encD < 1585)
+
+                                if (mul >= 500)
                                 {
-                                    j++;
-                                    sensor1 = Convert.ToByte(sensor1 & ~(1 << 0));
-                                    if (j == 1)
-                                    {
-                                       
-                                        d=0;
-                                    }
+                                    Thread.Sleep(50);
+                                    encD -= 100;
+                                    mul -= 100;
                                 }
-                                if (encD == 0)
+                                else if (mul >= 100)
                                 {
-                                    sensor1 = Convert.ToByte(sensor1 | (1 << 6));
+                                    Thread.Sleep(50);
+                                    encD -= 50;
+                                    mul -= 50;
                                 }
+                                else if (mul >= 50)
+                                {
+                                    Thread.Sleep(50);
+                                    encD -= 10;
+                                    mul -= 10;
+                                }
+
                                 else
+                                {
+                                    Thread.Sleep(50);
+                                    encD -= 1;
+                                    mul -= 1;
+                                }
+
+                                if (encD != 0)
                                 {
                                     sensor1 = Convert.ToByte(sensor1 & ~(1 << 6));
                                 }
+                                if (encD <= -1585)
+                                {
+                                    j++;
+                                    if (j == 1)
+                                    {
+                                        d++;
+                                    }
+
+                                    sensor1 = Convert.ToByte(sensor1 | (1 << 0));
+                                    if (encD == -21240)
+                                    {
+                                        sensor1 = Convert.ToByte(sensor1 & ~(1 << 5));
+                                    }
+                                    else if (encD < -21240)
+                                    {
+                                        encD = -21240;
+                                        errorCode = 204;
+                                        sensor1 = Convert.ToByte(sensor1 & ~(1 << 5));
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+
+                        sensor2 = Convert.ToByte(sensor2 & ~(1 << 0)); //moving
+                        sensor2 = Convert.ToByte(sensor2 & ~(1 << 1)); //command in progress
+
+                    }
+                    else
+                    {
+                        errorCode = 205;
+                    }
+                }
+                else if (input.Contains("MDR"))
+                {
+                    if (Convert.ToByte(sensor1 & (1 << 3)) == 8)
+                    {
+                        sensor2 = Convert.ToByte(sensor2 | (1 << 0)); //moving
+                        sensor2 = Convert.ToByte(sensor2 | (1 << 1)); //command in progress
+                        if (encD == 0)
+                        {
+                            errorCode = 203;
+                        }
+                        if (encD < 0)
+                        {
+                            encCounts = 5;
+                            int end = input.IndexOf(",", 2);
+                            int start = input.IndexOf("R");
+                            n = Convert.ToInt16(input.Substring(start + 1, end - start - 1));
+                            int mul = encCounts * n;
+                            int j = 0;
+                            while (mul != 0)
+                            {
+                                if (mul >= 500)
+                                {
+                                    Thread.Sleep(50);
+                                    encD += 100;
+                                    mul -= 100;
+                                }
+                                else if (mul >= 100)
+                                {
+                                    Thread.Sleep(50);
+                                    encD += 50;
+                                    mul -= 50;
+                                }
+                                else if (mul >= 50)
+                                {
+                                    Thread.Sleep(50);
+                                    encD += 10;
+                                    mul -= 10;
+                                }
+                                else
+                                {
+                                    Thread.Sleep(50);
+                                    encD += 1;
+                                    mul -= 1;
+                                }
+
+                                if (encD > 0)
+                                {
+                                    errorCode = 203;
+                                    sensor1 = Convert.ToByte(sensor1 | (1 << 6));
+                                    encD = 0;
+                                    break;
+                                }
+                                else if (encD > -21420)
+                                {
+                                    sensor1 = Convert.ToByte(sensor1 | (1 << 5));
+                                    if (encD > -1585)
+                                    {
+                                        j++;
+                                        sensor1 = Convert.ToByte(sensor1 & ~(1 << 0));
+                                        if (j == 1)
+                                        {
+
+                                            d = 0;
+                                        }
+                                    }
+                                    if (encD == 0)
+                                    {
+                                        sensor1 = Convert.ToByte(sensor1 | (1 << 6));
+                                    }
+                                    else
+                                    {
+                                        sensor1 = Convert.ToByte(sensor1 & ~(1 << 6));
+                                    }
+                                }
+
                             }
 
                         }
+                        sensor2 = Convert.ToByte(sensor2 & ~(1 << 0)); //moving
+                        sensor2 = Convert.ToByte(sensor2 & ~(1 << 1)); //command in progress
 
                     }
-                    sensor2 = Convert.ToByte(sensor2 & ~(1 << 0)); //moving
-                    sensor2 = Convert.ToByte(sensor2 & ~(1 << 1)); //command in progress
-
+                    else
+                    {
+                        errorCode = 205;
+                    }
                 }
-
                 else if (input.Contains("MIF"))
                 {
                     sensor2 = Convert.ToByte(sensor2 | (1 << 0)); //moving
@@ -579,7 +526,7 @@ namespace Machine
                     int k = 0;
                     for (int i = 0; i < 20; i++)
                     {
-                        if (indexerVals[i] - 5 < encI && encI<indexerVals[i]+5)
+                        if (indexerVals[i] - 5 < encI && encI < indexerVals[i] + 5)
                         {
                             k++;
                             break;
@@ -593,12 +540,33 @@ namespace Machine
                         int start = input.IndexOf("F");
                         n = Convert.ToInt16(input.Substring(start + 1, end - start - 1));
                         int mul = encCounts * n;
-                        int add = 0;
-                        while (add < mul)
+                        while (mul != 0)
                         {
-                            Thread.Sleep(50);
-                            encI += 5;
-                            add = add + 5;
+
+                            if (mul >= 500)
+                            {
+                                Thread.Sleep(50);
+                                encI += 100;
+                                mul -= 100;
+                            }
+                            else if (mul >= 100)
+                            {
+                                Thread.Sleep(50);
+                                encI += 50;
+                                mul -= 50;
+                            }
+                            else if (mul >= 50)
+                            {
+                                Thread.Sleep(50);
+                                encI += 10;
+                                mul -= 10;
+                            }
+                            else
+                            {
+                                Thread.Sleep(50);
+                                encI += 1;
+                                mul -= 1;
+                            }
                             for (int i = 0; i < 20; i++)
                             {
                                 if (encI == indexerVals[i])
@@ -611,7 +579,7 @@ namespace Machine
                                 else
                                 {
 
-                                    errorCode = 205;
+                                    //errorCode = 205;
                                     sensor1 = Convert.ToByte(sensor1 & ~(1 << 3));
                                 }
                             }
@@ -649,12 +617,32 @@ namespace Machine
                         int start = input.IndexOf("R");
                         n = Convert.ToInt16(input.Substring(start + 1, end - start - 1));
                         int mul = encCounts * n;
-                        int add = 0;
-                        while (add < mul)
+                        while (mul != 0)
                         {
-                            Thread.Sleep(50);
-                            encI -= 5;
-                            add += 5;
+                            if (mul >= 500)
+                            {
+                                Thread.Sleep(50);
+                                encI -= 100;
+                                mul -= 100;
+                            }
+                            else if (mul >= 100)
+                            {
+                                Thread.Sleep(50);
+                                encI -= 50;
+                                mul -= 50;
+                            }
+                            else if (mul >= 50)
+                            {
+                                Thread.Sleep(50);
+                                encI -= 10;
+                                mul -= 10;
+                            }
+                            else
+                            {
+                                Thread.Sleep(50);
+                                encI -= 1;
+                                mul -= 1;
+                            }
 
 
                             for (int j = 0; j < 20; j++)
@@ -668,7 +656,7 @@ namespace Machine
                                 }
                                 else
                                 {
-                                    errorCode = 205;
+                                    //errorCode = 205;
                                     sensor1 = Convert.ToByte(sensor1 & ~(1 << 3));
                                 }
 
@@ -699,7 +687,7 @@ namespace Machine
                             encI -= 100;
                             Thread.Sleep(50);
                         }
-                        else if (encI >=100)
+                        else if (encI >= 100)
                         {
                             encI -= 50;
                             Thread.Sleep(50);
@@ -719,13 +707,14 @@ namespace Machine
                             encI -= 1;
                             Thread.Sleep(50);
                         }
-                        for (int i=0;i<20; i++)
+                        for (int i = 0; i < 20; i++)
+                        {
+                            if (!(indexerVals[i] - 5 <= encI && encI <= indexerVals[i] + 5))
                             {
-                                if (!(indexerVals[i]-5 <=encI && encI <= indexerVals[i] + 5))
-                                {
-                                    sensor1 = Convert.ToByte(sensor1 & ~(1 << 3));
-                                }
+                                sensor1 = Convert.ToByte(sensor1 & ~(1 << 3));
+                                // errorCode = 205;
                             }
+                        }
                     }
                     sensor1 = Convert.ToByte(sensor1 | (1 << 4));
                     sensor2 = Convert.ToByte(sensor2 & ~(1 << 0)); //moving
@@ -734,109 +723,116 @@ namespace Machine
                 }
                 else if (input.Contains("OS"))
                 {
-                    sensor2 = Convert.ToByte(sensor2 | (1 << 0)); //moving
-                    sensor2 = Convert.ToByte(sensor2 | (1 << 1)); //command in progress
-                    while (encS != 0)
+                    if (Convert.ToByte(sensor1 & (1 << 3)) == 8)
                     {
-                        if (encS >= 500)
+                        sensor2 = Convert.ToByte(sensor2 | (1 << 0)); //moving
+                        sensor2 = Convert.ToByte(sensor2 | (1 << 1)); //command in progress
+                        while (encS != 0)
                         {
-                            encS -= 100;
-                            Thread.Sleep(50);
+                            if (encS >= 500)
+                            {
+                                encS -= 100;
+                                Thread.Sleep(50);
+                            }
+                            else if (encS >= 100)
+                            {
+                                encS -= 50;
+                                Thread.Sleep(50);
+                            }
+                            else if (encS >= 50)
+                            {
+                                encS -= 10;
+                                Thread.Sleep(50);
+                            }
+                            else if (encS >= 10)
+                            {
+                                encS -= 5;
+                                Thread.Sleep(50);
+                            }
+                            else
+                            {
+                                encS -= 1;
+                                Thread.Sleep(50);
+                            }
+                            if (encS < 21240)
+                            {
+                                sensor1 = Convert.ToByte(sensor1 | (1 << 1));
+                            }
                         }
-                        else if (encS >= 100)
+                        if ((Convert.ToByte(sensor1 & (1 << 0)) == 1) && s > 0)
                         {
-                            encS -= 50;
-                            Thread.Sleep(50);
+                            sensor1 = Convert.ToByte(sensor1 & ~(1 << 0));
+                            s = 0;
                         }
-                        else if (encS >= 50)
-                        {
-                            encS -= 10;
-                            Thread.Sleep(50);
-                        }
-                        else if (encS >= 10)
-                        {
-                            encS -= 5;
-                            Thread.Sleep(50);
-                        }
-                        else
-                        {
-                            encS -= 1;
-                            Thread.Sleep(50);
-                        }
-                        if (encS < 21240)
-                        {
-                            sensor1 = Convert.ToByte(sensor1 | (1 << 1));
-                        }
+
+                        sensor1 = Convert.ToByte(sensor1 | (1 << 2));
+                        sensor2 = Convert.ToByte(sensor2 & ~(1 << 0)); //moving
+                        sensor2 = Convert.ToByte(sensor2 & ~(1 << 1)); //command in progress
                     }
-                    if((Convert.ToByte(sensor1 & (1 << 0)) == 1) && s>0) {
-                        sensor1 = Convert.ToByte(sensor1 & ~(1 << 0));
-                        s=0;
-                    }
-                    
-                    sensor1 = Convert.ToByte(sensor1 | (1 << 2));
-                    sensor2 = Convert.ToByte(sensor2 & ~(1 << 0)); //moving
-                    sensor2 = Convert.ToByte(sensor2 & ~(1 << 1)); //command in progress
                 }
                 else if (input.Contains("OD"))
                 {
-                    sensor2 = Convert.ToByte(sensor2 | (1 << 0)); //moving
-                    sensor2 = Convert.ToByte(sensor2 | (1 << 1)); //command in progress
-                    while (encD != 0)
+                    if (Convert.ToByte(sensor1 & (1 << 3)) == 8)
                     {
-                        if (encD >= 500)
+                        sensor2 = Convert.ToByte(sensor2 | (1 << 0)); //moving
+                        sensor2 = Convert.ToByte(sensor2 | (1 << 1)); //command in progress
+                        while (encD != 0)
                         {
-                            encD -= 100;
-                            Thread.Sleep(50);
+                            if (encD <= -500)
+                            {
+                                encD += 100;
+                                Thread.Sleep(50);
+                            }
+                            else if (encD <= -100)
+                            {
+                                encD += 50;
+                                Thread.Sleep(50);
+                            }
+                            else if (encD <= -50)
+                            {
+                                encD += 10;
+                                Thread.Sleep(50);
+                            }
+                            else if (encD <= -10)
+                            {
+                                encD += 5;
+                                Thread.Sleep(50);
+                            }
+                            else
+                            {
+                                encD += 1;
+                                Thread.Sleep(50);
+                            }
+                            if (encS < 21240)
+                            {
+                                sensor1 = Convert.ToByte(sensor1 | (1 << 5));
+                            }
                         }
-                        else if (encD >= 100)
+                        if ((Convert.ToByte(sensor1 & (1 << 0)) == 1) && d > 0)
                         {
-                            encD -= 50;
-                            Thread.Sleep(50);
+                            sensor1 = Convert.ToByte(sensor1 & ~(1 << 0));
+                            d = 0;
                         }
-                        else if (encD >= 50)
-                        {
-                            encD -= 10;
-                            Thread.Sleep(50);
-                        }
-                        else if (encD >= 10)
-                        {
-                            encD -= 5;
-                            Thread.Sleep(50);
-                        }
-                        else
-                        {
-                            encD -= 1;
-                            Thread.Sleep(50);
-                        }
-                        if (encS < 21240)
-                        {
-                            sensor1 = Convert.ToByte(sensor1 | (1 << 5));
-                        }
+
+                        sensor1 = Convert.ToByte(sensor1 | (1 << 6));
+                        sensor2 = Convert.ToByte(sensor2 & ~(1 << 0)); //moving
+                        sensor2 = Convert.ToByte(sensor2 & ~(1 << 1)); //command in progress
                     }
-                    if ((Convert.ToByte(sensor1 & (1 << 0)) == 1) && d > 0)
-                    {
-                        sensor1 = Convert.ToByte(sensor1 & ~(1 << 0));
-                        d=0;
-                    }
-                    
-                    sensor1 = Convert.ToByte(sensor1 | (1 << 6));
-                    sensor2 = Convert.ToByte(sensor2 & ~(1 << 0)); //moving
-                    sensor2 = Convert.ToByte(sensor2 & ~(1 << 1)); //command in progress
                 }
-                else if (input.Contains("DOOR"))
-                {
-                    sensor2 = Convert.ToByte(sensor2 | (1 << 0)); //moving
-                    sensor2 = Convert.ToByte(sensor2 | (1 << 1)); //command in progress
-                    Console.Write("Imput:");
-                    string inp = Console.ReadLine();
-                    if (inp == "OPEN")
-                    {
-                        sensor2 = Convert.ToByte(sensor2 | (1 << 4));
-                    }
-                    Thread.Sleep(100);
-                    sensor2 = Convert.ToByte(sensor2 & ~(1 << 0)); //moving
-                    sensor2 = Convert.ToByte(sensor2 & ~(1 << 1));
-                }
+                //else if (input.Contains("DOOR"))
+                //{
+                //    sensor2 = Convert.ToByte(sensor2 | (1 << 0)); //moving
+                //    sensor2 = Convert.ToByte(sensor2 | (1 << 1)); //command in progress
+                //    Console.Write("Input:");
+                //    string inp = Console.ReadLine();
+                //    if (inp == "OPEN")
+                //    {
+                //        sensor2 = Convert.ToByte(sensor2 | (1 << 4));
+                //    }
+                //    Thread.Sleep(100);
+                //    sensor2 = Convert.ToByte(sensor2 & ~(1 << 0)); //moving
+                //    sensor2 = Convert.ToByte(sensor2 & ~(1 << 1));
+                //}
                 else if (input.Contains("R"))
                 {
                     sensor2 = Convert.ToByte(sensor2 | (1 << 0)); //moving
@@ -854,7 +850,7 @@ namespace Machine
                     input = input.Substring(start + 1, end - start - 1);
                     n = Convert.ToInt32(input);
                     int mul = encI - n;
-                    int add =Math.Abs(mul);
+                    int add = Math.Abs(mul);
                     if (mul < 0)
                     {
                         while (add != 0)
@@ -895,7 +891,7 @@ namespace Machine
                                 }
                                 else
                                 {
-                                    errorCode = 205;
+                                    //errorCode = 205;
                                     sensor1 = Convert.ToByte(sensor1 & ~(1 << 3));
                                 }
                             }
@@ -908,7 +904,7 @@ namespace Machine
                     {
                         while (add != 0)
                         {
-                            if (mul >= 500)
+                            if (add >= 500)
                             {
                                 Thread.Sleep(50);
                                 encI -= 100;
@@ -943,14 +939,14 @@ namespace Machine
                                 }
                                 else
                                 {
-                                    errorCode = 205;
+                                    //errorCode = 205;
                                     sensor1 = Convert.ToByte(sensor1 & ~(1 << 3));
                                 }
                             }
 
                         }
                     }
-                    
+
                     if (encI != 0)
                     {
                         sensor1 = Convert.ToByte(sensor1 & ~(1 << 4));
@@ -960,143 +956,149 @@ namespace Machine
                 }
                 else if (input.Contains("S"))
                 {
-                    sensor2 = Convert.ToByte(sensor2 | (1 << 0)); //moving
-                    sensor2 = Convert.ToByte(sensor2 | (1 << 1)); //command in progress
-                    int start = input.IndexOf("S");
-                    int end = input.IndexOf(",", 2);
-                    input = input.Substring(start + 1, end - start - 1);
-                    Console.WriteLine(input);
-                    n = Convert.ToInt32(input);
-                    int add = 0;
-                    int mul = encS - n;
-
-                    if (mul < 0)
+                    if (Convert.ToByte(sensor1 & (1 << 3)) == 8)
                     {
-                        while (add > mul)
-                        {
-                            encS += 5;
-                            add -= 5;
-                            if (encS != 0)
-                            {
-                                sensor1 = Convert.ToByte(sensor1 & ~(1 << 2));
-                            }
-                            if (encS >= 1585)
-                            {
-                                sensor1 = Convert.ToByte(sensor1 | (1 << 0));
-                                if (encS == 21225)
-                                {
-                                    sensor1 = Convert.ToByte(sensor1 & ~(1 << 5));
-                                }
-                                else if (encS > 21225)
-                                {
-                                    encS = 21225;
-                                    errorCode = 204;
-                                    break;
-                                }
-                            }
-                            Thread.Sleep(50);
-                        }
-                    }
-                    else
-                    {
-                        while (add < mul)
-                        {
-                            encS -= 5;
-                            add += 5;
-                            if (encS != 0)
-                            {
-                                sensor1 = Convert.ToByte(sensor1 & ~(1 << 2));
-                            }
-                            if (encS >= 1585)
-                            {
-                                sensor1 = Convert.ToByte(sensor1 | (1 << 0));
-                                if (encS == 21225)
-                                {
-                                    sensor1 = Convert.ToByte(sensor1 & ~(1 << 5));
-                                }
-                                else if (encS > 21225)
-                                {
-                                    encS = 21225;
-                                    errorCode = 204;
-                                    break;
-                                }
-                            }
-                            Thread.Sleep(50);
-                        }
-                    }
-                    sensor2 = Convert.ToByte(sensor2 & ~(1 << 0)); //moving
-                    sensor2 = Convert.ToByte(sensor2 & ~(1 << 1)); //command in progress
+                        sensor2 = Convert.ToByte(sensor2 | (1 << 0)); //moving
+                        sensor2 = Convert.ToByte(sensor2 | (1 << 1)); //command in progress
+                        int start = input.IndexOf("S");
+                        int end = input.IndexOf(",", 2);
+                        input = input.Substring(start + 1, end - start - 1);
+                        Console.WriteLine(input);
+                        n = Convert.ToInt32(input);
+                        int add = 0;
+                        int mul = encS - n;
 
+                        if (mul < 0)
+                        {
+                            while (add > mul)
+                            {
+                                encS += 5;
+                                add -= 5;
+                                if (encS != 0)
+                                {
+                                    sensor1 = Convert.ToByte(sensor1 & ~(1 << 2));
+                                }
+                                if (encS >= 1585)
+                                {
+                                    sensor1 = Convert.ToByte(sensor1 | (1 << 0));
+                                    if (encS == 21225)
+                                    {
+                                        sensor1 = Convert.ToByte(sensor1 & ~(1 << 5));
+                                    }
+                                    else if (encS > 21225)
+                                    {
+                                        encS = 21225;
+                                        errorCode = 204;
+                                        break;
+                                    }
+                                }
+                                Thread.Sleep(50);
+                            }
+                        }
+                        else
+                        {
+                            while (add < mul)
+                            {
+                                encS -= 5;
+                                add += 5;
+                                if (encS != 0)
+                                {
+                                    sensor1 = Convert.ToByte(sensor1 & ~(1 << 2));
+                                }
+                                if (encS >= 1585)
+                                {
+                                    sensor1 = Convert.ToByte(sensor1 | (1 << 0));
+                                    if (encS == 21225)
+                                    {
+                                        sensor1 = Convert.ToByte(sensor1 & ~(1 << 5));
+                                    }
+                                    else if (encS > 21225)
+                                    {
+                                        encS = 21225;
+                                        errorCode = 204;
+                                        break;
+                                    }
+                                }
+                                Thread.Sleep(50);
+                            }
+                        }
+                        sensor2 = Convert.ToByte(sensor2 & ~(1 << 0)); //moving
+                        sensor2 = Convert.ToByte(sensor2 & ~(1 << 1)); //command in progress
+
+                    }
                 }
                 else if (input.Contains("D"))
                 {
-                    sensor2 = Convert.ToByte(sensor2 | (1 << 0)); //moving
-                    sensor2 = Convert.ToByte(sensor2 | (1 << 1)); //command in progress
-                    int start = input.IndexOf("D");
-                    int end = input.IndexOf(",", 2);
-                    input = input.Substring(start + 1, end - start - 1);
-                    Console.WriteLine(input);
-                    n = Convert.ToInt32(input);
-                    int add = 0;
-                    int mul = encD - n;
-                    if (mul < 0)
+                    if (Convert.ToByte(sensor1 & (1 << 3)) == 8)
                     {
-                        while (add > mul)
+                        sensor2 = Convert.ToByte(sensor2 | (1 << 0)); //moving
+                        sensor2 = Convert.ToByte(sensor2 | (1 << 1)); //command in progress
+                        int start = input.IndexOf("D");
+                        int end = input.IndexOf(",", 2);
+                        input = input.Substring(start + 1, end - start - 1);
+                        Console.WriteLine(input);
+                        n = Convert.ToInt32(input);
+                        int add = 0;
+                        int mul = encD - n;
+                        if (mul < 0)
                         {
-                            encD += 5;
-                            add -= 5;
-                            if (encD != 0)
+                            while (add > mul)
                             {
-                                sensor1 = Convert.ToByte(sensor1 & ~(1 << 6));
-                            }
-                            if (encD >= 1585)
-                            {
-                                sensor1 = Convert.ToByte(sensor1 | (1 << 0));
-                                if (encD == 2125)
+                                encD -= 5;
+                                add -= 5;
+                                if (encD != 0)
                                 {
-                                    sensor1 = Convert.ToByte(sensor1 & ~(1 << 5));
+                                    sensor1 = Convert.ToByte(sensor1 & ~(1 << 6));
                                 }
-                                else if (encD > 2125)
+                                if (encD >= 1585)
                                 {
-                                    encD = 2125;
-                                    errorCode = 204;
-                                    break;
+                                    sensor1 = Convert.ToByte(sensor1 | (1 << 0));
+                                    if (encD == 2125)
+                                    {
+                                        sensor1 = Convert.ToByte(sensor1 & ~(1 << 5));
+                                    }
+                                    else if (encD > 2125)
+                                    {
+                                        encD = 2125;
+                                        errorCode = 204;
+                                        break;
+                                    }
                                 }
+                                Thread.Sleep(50);
                             }
-                            Thread.Sleep(50);
+
                         }
+                        else
+                        {
+                            while (add < mul)
+                            {
+                                encD += 5;
+                                add += 5;
+                                if (encD != 0)
+                                {
+                                    sensor1 = Convert.ToByte(sensor1 & ~(1 << 6));
+                                }
+                                if (encD >= 1585)
+                                {
+                                    sensor1 = Convert.ToByte(sensor1 | (1 << 0));
+                                    if (encD == 2125)
+                                    {
+                                        sensor1 = Convert.ToByte(sensor1 & ~(1 << 5));
+                                    }
+                                    else if (encD > 2125)
+                                    {
+                                        encD = 2125;
+                                        errorCode = 204;
+                                        break;
+                                    }
+                                }
+                                Thread.Sleep(50);
+                            }
+                        }
+                        sensor2 = Convert.ToByte(sensor2 & ~(1 << 0)); //moving
+                        sensor2 = Convert.ToByte(sensor2 & ~(1 << 1)); //command in progress
 
                     }
-                    else
-                    {
-                        while (add < mul)
-                        {
-                            encD -= 5;
-                            add += 5;
-                            if (encD != 0)
-                            {
-                                sensor1 = Convert.ToByte(sensor1 & ~(1 << 6));
-                            }
-                            if (encD >= 1585)
-                            {
-                                sensor1 = Convert.ToByte(sensor1 | (1 << 0));
-                                if (encD == 2125)
-                                {
-                                    sensor1 = Convert.ToByte(sensor1 & ~(1 << 5));
-                                }
-                                else if (encD > 2125)
-                                {
-                                    encD = 2125;
-                                    errorCode = 204;
-                                    break;
-                                }
-                            }
-                            Thread.Sleep(50);
-                        }
-                    }
-                    sensor2 = Convert.ToByte(sensor2 & ~(1 << 0)); //moving
-                    sensor2 = Convert.ToByte(sensor2 & ~(1 << 1)); //command in progress
-
                 }
                 else if (input.Contains("W"))
                 {
@@ -1105,32 +1107,32 @@ namespace Machine
                     int start = input.IndexOf("W");
                     int end = input.IndexOf(",", 2);
                     input = input.Substring(start + 1, end - start - 1);
-                    Console.Write("Input2:");
-                    string input2=Console.ReadLine();
+                    /* Console.Write("Input2:");
+                     string input2 = Console.ReadLine();
+                     int value = Convert.ToInt32(input);
+                     if (input2.Contains("DOOR"))
+                     {
+                         sensor2 = Convert.ToByte(sensor2 | (1 << 4));
+                         errorCode = 501;
+                     }
+                     else if (input2.Contains("LMO"))
+                     {
+                         sensor2 = Convert.ToByte(sensor2 | (1 << 5));
+                         errorCode = 501;
+                     }
+                     else if (input2.Contains("EMG"))
+                     {
+                         sensor2 = Convert.ToByte(sensor2 | (1 << 6));
+                         errorCode = 501;
+                     }
+                     else
+                     {*/
                     int value = Convert.ToInt32(input);
-                    if (input2.Contains("DOOR"))
-                    {
-                        sensor2 = Convert.ToByte(sensor2 | (1 << 4));
-                        errorCode = 501;
-                    }
-                    else if (input2.Contains("LMO"))
-                    {
-                        sensor2 = Convert.ToByte(sensor2 | (1 << 5));
-                        errorCode = 501;
-                    }
-                    else if (input2.Contains("EMG"))
-                    {
-                        sensor2 = Convert.ToByte(sensor2 | (1 << 6));
-                        errorCode = 501;
-                    }
-                    else
-                    {
-                        Thread.Sleep(value);
-                    }
-                   
+                    value = value * 1000;
+                    Thread.Sleep(value);
                     sensor2 = Convert.ToByte(sensor2 & ~(1 << 0)); //moving
                     sensor2 = Convert.ToByte(sensor2 & ~(1 << 1)); //command in progress
-                    
+
                 }
                 else if (input.Contains("I"))
                 {
@@ -1155,51 +1157,71 @@ namespace Machine
                     sensor1 = Convert.ToByte(sensor1 | (1 << 4)); ; //indexer home
 
                 }
-                
+
 
 
             }
         }
 
 
-            public static void HB(NetworkStream stream)
-            {
-                string Data2Send = "#," + Convert.ToString(sensor1) + "," + Convert.ToString(sensor2) + "," + Convert.ToString(encI) + "," + Convert.ToString(encS) + "," + Convert.ToString(encD) + "," + Convert.ToString(dwellTime) + "," + Convert.ToString(totalTime) + "," + Convert.ToString(errorCode);
-                var Data2Sendbytes = Encoding.UTF8.GetBytes(Data2Send);
-                Console.WriteLine(Data2Send);
-                stream.Write(Data2Sendbytes);
+        public static void HB(NetworkStream stream)
+        {
 
+            string Data2Send = "#," + Convert.ToString(sensor1) + "," + Convert.ToString(sensor2) + "," + Convert.ToString(encI) + "," + Convert.ToString(encS) + "," + Convert.ToString(encD) + "," + Convert.ToString(dwellTime) + "," + Convert.ToString(totalTime) + "," + Convert.ToString(errorCode);
+            var Data2Sendbytes = Encoding.UTF8.GetBytes(Data2Send);
+            //Console.WriteLine(Data2Send);
+            stream.Write(Data2Sendbytes);
+
+        }
+        public static void Input(NetworkStream stream, byte[] buffer)
+        {
+            //Console.Write("Input:");
+            string input = Console.ReadLine();
+            if (input.Contains("EMGR"))
+            {
+                sensor2 = Convert.ToByte(sensor2 & ~(1 << 6));
             }
+            else if (input.Contains("EMG"))
+            {
+                sensor2 = Convert.ToByte(sensor2 | (1 << 6));
+            }
+            else if (input.Contains("LMOR"))
+            {
+                sensor2 = Convert.ToByte(sensor2 & ~(1 << 5));
+            }
+            else if (input.Contains("LMO"))
+            {
+                sensor2 = Convert.ToByte(sensor2 | (1 << 5));
+            }
+            else if (input.Contains("DOORR"))
+            {
+                sensor2 = Convert.ToByte(sensor2 & ~(1 << 4));
+            }
+
+            else if (input.Contains("DOOR"))
+            {
+                sensor2 = Convert.ToByte(sensor2 | (1 << 4));
+            }
+            else if (input.Contains("TRTR"))
+            {
+                sensor2 = Convert.ToByte(sensor2 &~(1 << 7));
+            }
+            else if (input.Contains("TRT"))
+            {
+                sensor2 = Convert.ToByte(sensor2 | (1 << 7));
+            }
+
+
+
+
         }
     }
+}
+    
 
 
 
-            //public static int Binary_Search(int[] a,int start,int end,int key)
-            //{
-            //while (start <= end)
-            //{
-            //    int mid=(start+end)/2;
-            //    if (mid > key)
-            //    {
-            //        Binary_Search(a, start, mid - 1, key);
-            //        return 0;
-            //    }
-            //    else if(mid < key)
-            //    {
-            //        Binary_Search(a, mid + 1, end, key);
-            //        return 0;
-            //    }
-            //    else if (mid == key)
-            //    {
-            //        return 1;
-            //    }
-            //    else
-            //    {
-            //        return -1;
-            //    }
-            //}
-            //}
+           
 
 
         
