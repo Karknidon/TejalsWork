@@ -31,8 +31,11 @@ namespace Machine
 
             //Connection
             Console.WriteLine("Server");
-            var port = 2321;                                  
-            IPAddress ip = IPAddress.Parse ("192.168.99.208");
+            var port = 2321;
+            var hostname = Dns.GetHostName();
+            string local = Dns.GetHostByName(hostname).AddressList[1].ToString();
+            Console.WriteLine(local);
+            IPAddress ip = IPAddress.Parse(local); 
             IPEndPoint end = new(ip, port);
             using TcpListener listener = new(end);
 
@@ -43,10 +46,7 @@ namespace Machine
                 using TcpClient handler = listener.AcceptTcpClient();
                 using NetworkStream stream = handler.GetStream();
                 byte[] buffer = new byte[1024];
-                //var msgbytes = Encoding.UTF8.GetBytes("c");
-                //stream.Write(msgbytes);
-                
-
+               
                 if (encS == 0)
                 {
                     sensor1 = Convert.ToByte(sensor1 | (1 << 2));
@@ -863,11 +863,9 @@ namespace Machine
                 else if (input.Contains("R"))
                 {
 
-                    //sensor2 = Convert.ToByte(sensor2 | (1 << 0)); //moving
-                    //sensor2 = Convert.ToByte(sensor2 | (1 << 1)); //command in progress
+                   
                     errorCode = 0;
-                    //sensor2 = Convert.ToByte(sensor2 & ~(1 << 0)); //moving
-                    //sensor2 = Convert.ToByte(sensor2 & ~(1 << 1)); //command in progress
+                   
 
                 }
                 else if (input.Contains("P"))

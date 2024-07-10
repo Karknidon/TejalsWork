@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.7.34024.191
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GUISocket", "GUISocket.csproj", "{5157E6AC-2A4D-4151-B610-7FEF17989B54}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HDRControlLibrary", "..\MyCustome Controls\HDRControlLibrary\HDRControlLibrary.csproj", "{737B001F-91BE-47DC-B1C8-BA21CA1F8773}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5157E6AC-2A4D-4151-B610-7FEF17989B54}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5157E6AC-2A4D-4151-B610-7FEF17989B54}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5157E6AC-2A4D-4151-B610-7FEF17989B54}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5157E6AC-2A4D-4151-B610-7FEF17989B54}.Release|Any CPU.Build.0 = Release|Any CPU
+		{737B001F-91BE-47DC-B1C8-BA21CA1F8773}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{737B001F-91BE-47DC-B1C8-BA21CA1F8773}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{737B001F-91BE-47DC-B1C8-BA21CA1F8773}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{737B001F-91BE-47DC-B1C8-BA21CA1F8773}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {49072229-20E0-40D8-9578-47D9927A0140}
+	EndGlobalSection
+EndGlobal
