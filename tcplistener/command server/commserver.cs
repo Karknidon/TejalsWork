@@ -31,8 +31,8 @@ namespace Machine
 
             //Connection
             Console.WriteLine("Server");
-            var port = 2321;           //11;                       
-            IPAddress ip = IPAddress.Parse("192.168.99.208");
+            var port = 2321;                                  
+            IPAddress ip = IPAddress.Parse ("192.168.99.208");
             IPEndPoint end = new(ip, port);
             using TcpListener listener = new(end);
 
@@ -43,9 +43,9 @@ namespace Machine
                 using TcpClient handler = listener.AcceptTcpClient();
                 using NetworkStream stream = handler.GetStream();
                 byte[] buffer = new byte[1024];
-                string msg = "Successfully Connected";
-                var msgbytes = Encoding.UTF8.GetBytes(msg);
+                //var msgbytes = Encoding.UTF8.GetBytes("c");
                 //stream.Write(msgbytes);
+                
 
                 if (encS == 0)
                 {
@@ -63,7 +63,9 @@ namespace Machine
                 }
                 sensor1 = Convert.ToByte(sensor1 | (1 << 1));
                 sensor1 = Convert.ToByte(sensor1 | (1 << 5));
-                // errorCode = 205;
+                sensor2 = Convert.ToByte(sensor2 | (1 << 5));
+                sensor2 = Convert.ToByte(sensor2 | (1 << 7));
+
                 while (true)
                 {
 
@@ -77,18 +79,7 @@ namespace Machine
                     Thread.Sleep(20);
                     Thread inp = new Thread(() => Input(stream, buffer));
                     inp.Start();
-                    //if (Convert.ToByte(sensor2 & (1 << 6)) == 64)
-                    //{
-                    //    try
-                    //    {
-                    //        c.Abort();
-                    //    }
-                    //    catch (PlatformNotSupportedException)
-                    //    {
-                    //        Console.WriteLine("Emulator Thread aborted.");
-                    //    }
-
-                    //}
+                    
                 }
 
 
@@ -99,9 +90,7 @@ namespace Machine
         {
             string input = Encoding.UTF8.GetString(buffer, 0, buffer.Length);
             Array.Clear(buffer, 0, buffer.Length);
-            // Console.WriteLine(input); // Debug command
             int size = input.Length;
-            // Console.WriteLine(size);
             int encCounts;
             int n;
             string str = @"#,+,?";
@@ -110,7 +99,7 @@ namespace Machine
             {
                 if (input.Contains("EI"))
                 {
-                    if (Convert.ToByte(sensor2 & (1 << 1)) != 2 && (Convert.ToByte(sensor2 & (1 << 6)) == 0 && Convert.ToByte(sensor2 & (1 << 4)) == 0 && Convert.ToByte(sensor2 & (1 << 7)) == 0))
+                    if (Convert.ToByte(sensor2 & (1 << 1)) != 2 && (Convert.ToByte(sensor2 & (1 << 6)) == 0 && Convert.ToByte(sensor2 & (1 << 4)) == 0 && Convert.ToByte(sensor2 & (1 << 7)) ==128))
                     {
                         int w = 1;
                         int t = 0;
@@ -131,7 +120,7 @@ namespace Machine
 
                 else if (input.Contains("ES"))
                 {
-                    if (Convert.ToByte(sensor2 & (1 << 1)) != 2 && (Convert.ToByte(sensor2 & (1 << 6)) == 0 && Convert.ToByte(sensor2 & (1 << 4)) == 0 && Convert.ToByte(sensor2 & (1 << 7)) == 0))
+                    if (Convert.ToByte(sensor2 & (1 << 1)) != 2 && (Convert.ToByte(sensor2 & (1 << 6)) == 0 && Convert.ToByte(sensor2 & (1 << 4)) == 0 && Convert.ToByte(sensor2 & (1 << 7)) ==128))
                     {
                         int t = 0;
                         int w = 1;
@@ -156,7 +145,7 @@ namespace Machine
                 }
                 else if (input.Contains("ED"))
                 {
-                    if (Convert.ToByte(sensor2 & (1 << 1)) != 2 && (Convert.ToByte(sensor2 & (1 << 6)) == 0 && Convert.ToByte(sensor2 & (1 << 4)) == 0 && Convert.ToByte(sensor2 & (1 << 7)) == 0))
+                    if (Convert.ToByte(sensor2 & (1 << 1)) != 2 && (Convert.ToByte(sensor2 & (1 << 6)) == 0 && Convert.ToByte(sensor2 & (1 << 4)) == 0 && Convert.ToByte(sensor2 & (1 << 7)) ==128))
                     {
                         int t = 0;
                         int w = 1;
@@ -181,7 +170,7 @@ namespace Machine
                 }
                 else if (input.Contains("MSF"))
                 {
-                    if (Convert.ToByte(sensor2 & (1 << 1)) != 2 && (Convert.ToByte(sensor2 & (1 << 6)) == 0 && Convert.ToByte(sensor2 & (1 << 4)) == 0 && Convert.ToByte(sensor2 & (1 << 7)) == 0))
+                    if (Convert.ToByte(sensor2 & (1 << 1)) != 2 && (Convert.ToByte(sensor2 & (1 << 6)) == 0 && Convert.ToByte(sensor2 & (1 << 4)) == 0 && Convert.ToByte(sensor2 & (1 << 7)) == 128))
                     {
                         if (Convert.ToByte(sensor1 & (1 << 3)) == 8)
                         {
@@ -256,7 +245,7 @@ namespace Machine
                                             break;
                                         }
                                     }
-                                    if (Convert.ToByte(sensor2 & (1 << 6)) == 64 || Convert.ToByte(sensor2 & (1 << 4)) == 16 || Convert.ToByte(sensor2 & (1 << 7)) == 128)
+                                    if (Convert.ToByte(sensor2 & (1 << 6)) == 64 || Convert.ToByte(sensor2 & (1 << 4)) == 16 || Convert.ToByte(sensor2 & (1 << 7)) == 0)
                                     {
                                         break;
                                     }
@@ -279,7 +268,7 @@ namespace Machine
                 }
                 else if (input.Contains("MSR"))
                 {
-                    if (Convert.ToByte(sensor2 & (1 << 1)) != 2 && (Convert.ToByte(sensor2 & (1 << 6)) == 0 && Convert.ToByte(sensor2 & (1 << 4)) == 0 && Convert.ToByte(sensor2 & (1 << 7)) == 0))
+                    if (Convert.ToByte(sensor2 & (1 << 1)) != 2 && (Convert.ToByte(sensor2 & (1 << 6)) == 0 && Convert.ToByte(sensor2 & (1 << 4)) == 0 && Convert.ToByte(sensor2 & (1 << 7)) == 128))
                     {
                         if (Convert.ToByte(sensor1 & (1 << 3)) == 8)
                         {
@@ -353,7 +342,7 @@ namespace Machine
                                         sensor1 = Convert.ToByte(sensor1 & ~(1 << 2));
 
                                     }
-                                    if (Convert.ToByte(sensor2 & (1 << 6)) == 64 || Convert.ToByte(sensor2 & (1 << 4)) == 16 || Convert.ToByte(sensor2 & (1 << 7)) == 128)
+                                    if (Convert.ToByte(sensor2 & (1 << 6)) == 64 || Convert.ToByte(sensor2 & (1 << 4)) == 16 || Convert.ToByte(sensor2 & (1 << 7)) == 0)
                                     {
                                         break;
                                     }
@@ -374,7 +363,7 @@ namespace Machine
                 }
                 else if (input.Contains("MDF"))
                 {
-                    if (Convert.ToByte(sensor2 & (1 << 1)) != 2 && (Convert.ToByte(sensor2 & (1 << 6)) == 0 && Convert.ToByte(sensor2 & (1 << 4)) == 0 && Convert.ToByte(sensor2 & (1 << 7)) == 0))
+                    if (Convert.ToByte(sensor2 & (1 << 1)) != 2 && (Convert.ToByte(sensor2 & (1 << 6)) == 0 && Convert.ToByte(sensor2 & (1 << 4)) == 0 && Convert.ToByte(sensor2 & (1 << 7)) == 128))
                     {
                         if (Convert.ToByte(sensor1 & (1 << 3)) == 8)
                         {
@@ -451,7 +440,7 @@ namespace Machine
                                             break;
                                         }
                                     }
-                                    if (Convert.ToByte(sensor2 & (1 << 6)) == 64 || Convert.ToByte(sensor2 & (1 << 4)) == 16 || Convert.ToByte(sensor2 & (1 << 7)) == 128)
+                                    if (Convert.ToByte(sensor2 & (1 << 6)) == 64 || Convert.ToByte(sensor2 & (1 << 4)) == 16 || Convert.ToByte(sensor2 & (1 << 7)) == 0)
                                     {
                                         break;
                                     }
@@ -470,7 +459,7 @@ namespace Machine
                 }
                 else if (input.Contains("MDR"))
                 {
-                    if (Convert.ToByte(sensor2 & (1 << 1)) != 2 && (Convert.ToByte(sensor2 & (1 << 6)) == 0 && Convert.ToByte(sensor2 & (1 << 4)) == 0 && Convert.ToByte(sensor2 & (1 << 7)) == 0))
+                    if (Convert.ToByte(sensor2 & (1 << 1)) != 2 && (Convert.ToByte(sensor2 & (1 << 6)) == 0 && Convert.ToByte(sensor2 & (1 << 4)) == 0 && Convert.ToByte(sensor2 & (1 << 7)) == 128))
                     {
                         if (Convert.ToByte(sensor1 & (1 << 3)) == 8)
                         {
@@ -544,7 +533,7 @@ namespace Machine
                                             sensor1 = Convert.ToByte(sensor1 & ~(1 << 6));
                                         }
                                     }
-                                    if (Convert.ToByte(sensor2 & (1 << 6)) == 64 || Convert.ToByte(sensor2 & (1 << 4)) == 16 || Convert.ToByte(sensor2 & (1 << 7)) == 128)
+                                    if (Convert.ToByte(sensor2 & (1 << 6)) == 64 || Convert.ToByte(sensor2 & (1 << 4)) == 16 || Convert.ToByte(sensor2 & (1 << 7)) == 0)
                                     {
                                         break;
                                     }
@@ -564,7 +553,7 @@ namespace Machine
                 }
                 else if (input.Contains("MIF"))
                 {
-                    if (Convert.ToByte(sensor2 & (1 << 1)) != 2 && (Convert.ToByte(sensor2 & (1 << 6)) == 0 && Convert.ToByte(sensor2 & (1 << 4)) == 0 && Convert.ToByte(sensor2 & (1 << 7)) == 0))
+                    if (Convert.ToByte(sensor2 & (1 << 1)) != 2 && (Convert.ToByte(sensor2 & (1 << 6)) == 0 && Convert.ToByte(sensor2 & (1 << 4)) == 0 && Convert.ToByte(sensor2 & (1 << 7)) == 128 && Convert.ToByte(sensor1 & (1<<0))!=1))
                     {
                         sensor2 = Convert.ToByte(sensor2 | (1 << 0)); //moving
                         sensor2 = Convert.ToByte(sensor2 | (1 << 1)); //command in progress
@@ -616,7 +605,7 @@ namespace Machine
                             }
 
                             sensor1 = Convert.ToByte(sensor1 & ~(1 << 4));
-                            if (Convert.ToByte(sensor2 & (1 << 6)) == 64 || Convert.ToByte(sensor2 & (1 << 4)) == 16 || Convert.ToByte(sensor2 & (1 << 7)) == 128)
+                            if (Convert.ToByte(sensor2 & (1 << 6)) == 64 || Convert.ToByte(sensor2 & (1 << 4)) == 16 || Convert.ToByte(sensor2 & (1 << 7)) == 0)
                             {
                                 break;
                             }
@@ -629,7 +618,7 @@ namespace Machine
                 }
                 else if (input.Contains("MIR"))
                 {
-                    if (Convert.ToByte(sensor2 & (1 << 1)) != 2 && (Convert.ToByte(sensor2 & (1 << 6)) == 0 && Convert.ToByte(sensor2 & (1 << 4)) == 0 && Convert.ToByte(sensor2 & (1 << 7)) == 0))
+                    if (Convert.ToByte(sensor2 & (1 << 1)) != 2 && (Convert.ToByte(sensor2 & (1 << 6)) == 0 && Convert.ToByte(sensor2 & (1 << 4)) == 0 && Convert.ToByte(sensor2 & (1 << 7)) == 128 && Convert.ToByte(sensor1 & (1 << 0)) != 1))
                     {
                         sensor2 = Convert.ToByte(sensor2 | (1 << 0)); //moving
                         sensor2 = Convert.ToByte(sensor2 | (1 << 1)); //command in progress
@@ -684,7 +673,7 @@ namespace Machine
                                 }
 
                             }
-                            if (Convert.ToByte(sensor2 & (1 << 6)) == 64 || Convert.ToByte(sensor2 & (1 << 4)) == 16 || Convert.ToByte(sensor2 & (1 << 7)) == 128)
+                            if (Convert.ToByte(sensor2 & (1 << 6)) == 64 || Convert.ToByte(sensor2 & (1 << 4)) == 16 || Convert.ToByte(sensor2 & (1 << 7)) == 0)
                             {
                                 break;
                             }
@@ -698,7 +687,7 @@ namespace Machine
 
                 else if (input.Contains("OI"))
                 {
-                    if (Convert.ToByte(sensor2 & (1 << 1)) != 2 && (Convert.ToByte(sensor2 & (1 << 6)) == 0 && Convert.ToByte(sensor2 & (1 << 4)) == 0 && Convert.ToByte(sensor2 & (1 << 7)) == 0))
+                    if (Convert.ToByte(sensor2 & (1 << 1)) != 2 && (Convert.ToByte(sensor2 & (1 << 6)) == 0 && Convert.ToByte(sensor2 & (1 << 4)) == 0 && Convert.ToByte(sensor2 & (1 << 7)) == 128 && Convert.ToByte(sensor1 & (1 << 0)) != 1))
                     {
                         sensor2 = Convert.ToByte(sensor2 | (1 << 0)); //moving
                         sensor2 = Convert.ToByte(sensor2 | (1 << 1)); //command in progress
@@ -737,7 +726,7 @@ namespace Machine
                                     // errorCode = 205;
                                 }
                             }
-                            if (Convert.ToByte(sensor2 & (1 << 6)) == 64 || Convert.ToByte(sensor2 & (1 << 4)) == 16 || Convert.ToByte(sensor2 & (1 << 7)) == 128)
+                            if (Convert.ToByte(sensor2 & (1 << 6)) == 64 || Convert.ToByte(sensor2 & (1 << 4)) == 16 || Convert.ToByte(sensor2 & (1 << 7)) == 0)
                             {
                                 break;
                             }
@@ -750,7 +739,7 @@ namespace Machine
                 }
                 else if (input.Contains("OS"))
                 {
-                    if (Convert.ToByte(sensor2 & (1 << 1)) != 2 && (Convert.ToByte(sensor2 & (1 << 6)) == 0 && Convert.ToByte(sensor2 & (1 << 4)) == 0 && Convert.ToByte(sensor2 & (1 << 7)) == 0))
+                    if (Convert.ToByte(sensor2 & (1 << 1)) != 2 && (Convert.ToByte(sensor2 & (1 << 6)) == 0 && Convert.ToByte(sensor2 & (1 << 4)) == 0 && Convert.ToByte(sensor2 & (1 << 7)) == 128))
                     {
                         if (Convert.ToByte(sensor1 & (1 << 3)) == 8)
                         {
@@ -793,7 +782,7 @@ namespace Machine
                                     sensor1 = Convert.ToByte(sensor1 & ~(1 << 0));
                                     s = 0;
                                 }
-                                if (Convert.ToByte(sensor2 & (1 << 6)) == 64 || Convert.ToByte(sensor2 & (1 << 4)) == 16 || Convert.ToByte(sensor2 & (1 << 7)) == 128)
+                                if (Convert.ToByte(sensor2 & (1 << 6)) == 64 || Convert.ToByte(sensor2 & (1 << 4)) == 16 || Convert.ToByte(sensor2 & (1 << 7)) == 0)
                                 {
                                     break;
                                 }
@@ -811,7 +800,7 @@ namespace Machine
                 }
                 else if (input.Contains("OD"))
                 {
-                    if (Convert.ToByte(sensor2 & (1 << 1)) != 2 && (Convert.ToByte(sensor2 & (1 << 6)) == 0 && Convert.ToByte(sensor2 & (1 << 4)) == 0 && Convert.ToByte(sensor2 & (1 << 7)) == 0))
+                    if (Convert.ToByte(sensor2 & (1 << 1)) != 2 && (Convert.ToByte(sensor2 & (1 << 6)) == 0 && Convert.ToByte(sensor2 & (1 << 4)) == 0 && Convert.ToByte(sensor2 & (1 << 7)) == 128))
                     {
                         if (Convert.ToByte(sensor1 & (1 << 3)) == 8)
                         {
@@ -854,7 +843,7 @@ namespace Machine
                                     sensor1 = Convert.ToByte(sensor1 & ~(1 << 0));
                                     d = 0;
                                 }
-                                if (Convert.ToByte(sensor2 & (1 << 6)) == 64 || Convert.ToByte(sensor2 & (1 << 4)) == 16 || Convert.ToByte(sensor2 & (1 << 7)) == 128)
+                                if (Convert.ToByte(sensor2 & (1 << 6)) == 64 || Convert.ToByte(sensor2 & (1 << 4)) == 16 || Convert.ToByte(sensor2 & (1 << 7)) == 0)
                                 {
                                     break;
                                 }
@@ -883,7 +872,7 @@ namespace Machine
                 }
                 else if (input.Contains("P"))
                 {
-                    if (Convert.ToByte(sensor2 & (1 << 1)) != 2 && (Convert.ToByte(sensor2 & (1 << 6)) == 0 && Convert.ToByte(sensor2 & (1 << 4)) == 0 && Convert.ToByte(sensor2 & (1 << 7)) == 0))
+                    if (Convert.ToByte(sensor2 & (1 << 1)) != 2 && (Convert.ToByte(sensor2 & (1 << 6)) == 0 && Convert.ToByte(sensor2 & (1 << 4)) == 0 && Convert.ToByte(sensor2 & (1 << 7)) == 128 && Convert.ToByte(sensor1 & (1 << 0)) != 1))
                     {
                         sensor2 = Convert.ToByte(sensor2 | (1 << 0)); //moving
                         sensor2 = Convert.ToByte(sensor2 | (1 << 1)); //command in progress
@@ -938,7 +927,7 @@ namespace Machine
                                     }
                                 }
 
-                                if (Convert.ToByte(sensor2 & (1 << 6)) == 64 || Convert.ToByte(sensor2 & (1 << 4)) == 16 || Convert.ToByte(sensor2 & (1 << 7)) == 128)
+                                if (Convert.ToByte(sensor2 & (1 << 6)) == 64 || Convert.ToByte(sensor2 & (1 << 4)) == 16 || Convert.ToByte(sensor2 & (1 << 7)) == 0)
                                 {
                                     break;
                                 }
@@ -988,7 +977,7 @@ namespace Machine
                                         sensor1 = Convert.ToByte(sensor1 & ~(1 << 3));
                                     }
                                 }
-                                if (Convert.ToByte(sensor2 & (1 << 6)) == 64 || Convert.ToByte(sensor2 & (1 << 4)) == 16 || Convert.ToByte(sensor2 & (1 << 7)) == 128)
+                                if (Convert.ToByte(sensor2 & (1 << 6)) == 64 || Convert.ToByte(sensor2 & (1 << 4)) == 16 || Convert.ToByte(sensor2 & (1 << 7)) == 0)
                                 {
                                     break;
                                 }
@@ -1005,7 +994,7 @@ namespace Machine
                 }
                 else if (input.Contains("S"))
                 {
-                    if (Convert.ToByte(sensor2 & (1 << 1)) != 2 && (Convert.ToByte(sensor2 & (1 << 6)) == 0 && Convert.ToByte(sensor2 & (1 << 4)) == 0 && Convert.ToByte(sensor2 & (1 << 7)) == 0))
+                    if (Convert.ToByte(sensor2 & (1 << 1)) != 2 && (Convert.ToByte(sensor2 & (1 << 6)) == 0 && Convert.ToByte(sensor2 & (1 << 4)) == 0 && Convert.ToByte(sensor2 & (1 << 7)) == 128))
                     {
                         if (Convert.ToByte(sensor1 & (1 << 3)) == 8)
                         {
@@ -1065,7 +1054,7 @@ namespace Machine
                                         }
                                     }
                                     Thread.Sleep(50);
-                                    if (Convert.ToByte(sensor2 & (1 << 6)) == 64 || Convert.ToByte(sensor2 & (1 << 4)) == 16 || Convert.ToByte(sensor2 & (1 << 7)) == 128)
+                                    if (Convert.ToByte(sensor2 & (1 << 6)) == 64 || Convert.ToByte(sensor2 & (1 << 4)) == 16 || Convert.ToByte(sensor2 & (1 << 7)) == 0)
                                     {
                                         break;
                                     }
@@ -1118,7 +1107,7 @@ namespace Machine
                                         }
                                     }
                                     Thread.Sleep(50);
-                                    if (Convert.ToByte(sensor2 & (1 << 6)) == 64 || Convert.ToByte(sensor2 & (1 << 4)) == 16 || Convert.ToByte(sensor2 & (1 << 7)) == 128)
+                                    if (Convert.ToByte(sensor2 & (1 << 6)) == 64 || Convert.ToByte(sensor2 & (1 << 4)) == 16 || Convert.ToByte(sensor2 & (1 << 7)) == 0)
                                     {
                                         break;
                                     }
@@ -1136,7 +1125,7 @@ namespace Machine
                 }
                 else if (input.Contains("D"))
                 {
-                    if (Convert.ToByte(sensor2 & (1 << 1)) != 2 && (Convert.ToByte(sensor2 & (1 << 6)) == 0 && Convert.ToByte(sensor2 & (1 << 4)) == 0 && Convert.ToByte(sensor2 & (1 << 7)) == 0))
+                    if (Convert.ToByte(sensor2 & (1 << 1)) != 2 && (Convert.ToByte(sensor2 & (1 << 6)) == 0 && Convert.ToByte(sensor2 & (1 << 4)) == 0 && Convert.ToByte(sensor2 & (1 << 7)) == 128))
                     {
                         if (Convert.ToByte(sensor1 & (1 << 3)) == 8)
                         {
@@ -1196,7 +1185,7 @@ namespace Machine
                                         }
                                     }
                                     Thread.Sleep(50);
-                                    if (Convert.ToByte(sensor2 & (1 << 6)) == 64 || Convert.ToByte(sensor2 & (1 << 4)) == 16 || Convert.ToByte(sensor2 & (1 << 7)) == 128)
+                                    if (Convert.ToByte(sensor2 & (1 << 6)) == 64 || Convert.ToByte(sensor2 & (1 << 4)) == 16 || Convert.ToByte(sensor2 & (1 << 7)) == 0)
                                     {
                                         break;
                                     }
@@ -1250,7 +1239,7 @@ namespace Machine
                                         }
                                     }
                                     Thread.Sleep(50);
-                                    if (Convert.ToByte(sensor2 & (1 << 6)) == 64 || Convert.ToByte(sensor2 & (1 << 4)) == 16 || Convert.ToByte(sensor2 & (1 << 7)) == 128)
+                                    if (Convert.ToByte(sensor2 & (1 << 6)) == 64 || Convert.ToByte(sensor2 & (1 << 4)) == 16 || Convert.ToByte(sensor2 & (1 << 7)) == 0)
                                     {
                                         break;
                                     }
@@ -1268,7 +1257,7 @@ namespace Machine
                 }
                 else if (input.Contains("W"))
                 {
-                    if (Convert.ToByte(sensor2 & (1 << 1)) != 2 && (Convert.ToByte(sensor2 & (1 << 6)) == 0 && Convert.ToByte(sensor2 & (1 << 4)) == 0 && Convert.ToByte(sensor2 & (1 << 7)) == 0))
+                    if (Convert.ToByte(sensor2 & (1 << 1)) != 2 && (Convert.ToByte(sensor2 & (1 << 6)) == 0 && Convert.ToByte(sensor2 & (1 << 4)) == 0 && Convert.ToByte(sensor2 & (1 << 7)) == 128))
                     {
                         sensor2 = Convert.ToByte(sensor2 | (1 << 0)); //moving
                         sensor2 = Convert.ToByte(sensor2 | (1 << 1)); //command in progress
@@ -1285,7 +1274,7 @@ namespace Machine
                 }
                 else if (input.Contains("I"))
                 {
-                    if (Convert.ToByte(sensor2 & (1 << 1)) != 2 && (Convert.ToByte(sensor2 & (1 << 6)) == 0 && Convert.ToByte(sensor2 & (1 << 4)) == 0 && Convert.ToByte(sensor2 & (1 << 7)) == 0))
+                    if (Convert.ToByte(sensor2 & (1 << 1)) != 2 && (Convert.ToByte(sensor2 & (1 << 6)) == 0 && Convert.ToByte(sensor2 & (1 << 4)) == 0 && Convert.ToByte(sensor2 & (1 << 7)) == 128))
                     {
                         Thread.Sleep(100);
                         int w = 1;
@@ -1305,7 +1294,7 @@ namespace Machine
 
                             t += 100;
                             
-                            if (Convert.ToByte(sensor2 & (1 << 6)) == 64 || Convert.ToByte(sensor2 & (1 << 4)) == 16 || Convert.ToByte(sensor2 & (1 << 7)) == 128)
+                            if (Convert.ToByte(sensor2 & (1 << 6)) == 64 || Convert.ToByte(sensor2 & (1 << 4)) == 16 || Convert.ToByte(sensor2 & (1 << 7)) == 0)
                             {
                                 break;
                             }
